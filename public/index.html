@@ -16,7 +16,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=STIX+Two+Text:ital,wght@0,400..700;1,400..700&family=Schibsted+Grotesk:wght@400..700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="style.css?v=3">
+<link rel="stylesheet" href="style.css?v=4">
 </head>
 <body>
 
@@ -147,30 +147,32 @@
   <p class="ro-test-desc" id="ro-test-desc"></p>
 
   <div class="rollout">
-    <div class="compare" id="compare">
-      <img id="cmp-truth" alt="Ground truth frame" draggable="false">
-      <div class="cmp-top" id="cmp-top"><img id="cmp-model" alt="Model prediction frame" draggable="false"></div>
-      <span class="cmp-label cmp-label-l">Ground truth (LBM)</span>
-      <span class="cmp-label cmp-label-r" id="cmp-model-label">AB-UPT</span>
-      <div class="cmp-handle" id="cmp-handle" role="slider" tabindex="0" aria-label="Comparison divider" aria-valuemin="0" aria-valuemax="100" aria-valuenow="50"><span></span></div>
-      <div class="cmp-loading" id="cmp-loading">Loading frames</div>
+    <div class="ro-main">
+      <div class="compare" id="compare">
+        <img id="cmp-truth" alt="Ground truth frame" draggable="false">
+        <div class="cmp-top" id="cmp-top"><img id="cmp-model" alt="Model prediction frame" draggable="false"></div>
+        <span class="cmp-label cmp-label-l">Ground truth (LBM)</span>
+        <span class="cmp-label cmp-label-r" id="cmp-model-label">AB-UPT</span>
+        <div class="cmp-handle" id="cmp-handle" role="slider" tabindex="0" aria-label="Comparison divider" aria-valuemin="0" aria-valuemax="100" aria-valuenow="50"><span></span></div>
+        <div class="cmp-loading" id="cmp-loading">Loading frames</div>
+      </div>
+      <div class="timeline">
+        <button class="play" id="ro-play" aria-label="Play rollout"><svg viewBox="0 0 16 16" width="14" height="14" aria-hidden="true"><path d="M4 2.5v11l9.5-5.5z" fill="currentColor"/></svg></button>
+        <input type="range" id="ro-scrub" min="0" max="63" value="0" aria-label="Rollout step">
+        <output id="ro-step" class="step-readout">h = 1 / 64</output>
+      </div>
+      <p class="fine" id="ro-case"></p>
     </div>
 
-    <aside class="ro-side">
-      <fieldset class="models" id="ro-models">
-        <legend>Compare against</legend>
-      </fieldset>
+    <fieldset class="models" id="ro-models">
+      <legend>Compare against</legend>
+    </fieldset>
+
+    <div class="ro-chart">
       <div class="iou-chart" id="iou-chart" aria-label="IoU against ground truth over the rollout"></div>
       <p class="fine">IoU of the blue phase against the ground truth on pore voxels, read at every step. Each case is the median test case by IoU at step 64, not the best one.</p>
-    </aside>
+    </div>
   </div>
-
-  <div class="timeline">
-    <button class="play" id="ro-play" aria-label="Play rollout"><svg viewBox="0 0 16 16" width="14" height="14" aria-hidden="true"><path d="M4 2.5v11l9.5-5.5z" fill="currentColor"/></svg></button>
-    <input type="range" id="ro-scrub" min="0" max="63" value="0" aria-label="Rollout step">
-    <output id="ro-step" class="step-readout">h = 1 / 64</output>
-  </div>
-  <p class="fine" id="ro-case"></p>
 </section>
 
 <!-- Results -->
@@ -314,6 +316,6 @@ git clone https://github.com/PoreML/poreml   # learning framework</code></pre></
   <p><a href="https://arxiv.org/abs/2610.10314">arXiv</a> <a href="https://github.com/PoreML">GitHub</a> <a href="https://huggingface.co/datasets/PoreML/PoreML_data">Hugging Face</a></p>
 </footer>
 
-<script src="app.js?v=3" type="module"></script>
+<script src="app.js?v=4" type="module"></script>
 </body>
 </html>
