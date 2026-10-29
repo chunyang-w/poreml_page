@@ -16,7 +16,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=STIX+Two+Text:ital,wght@0,400..700;1,400..700&family=Schibsted+Grotesk:wght@400..700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="style.css?v=7">
+<link rel="stylesheet" href="style.css?v=8">
 </head>
 <body>
 
@@ -264,30 +264,45 @@
     <h2>Get started</h2>
     <p>Everything is MIT-licensed. Download a slice of the data, or clone the code.</p>
   </div>
-  <div class="start-grid">
-    <div class="start-item">
-      <h3>Download the data</h3>
-      <p>Trajectories use Zstandard compression, so import <code>hdf5plugin</code> before <code>h5py</code>. Filter by scenario, geometry family or run with <code>--include</code>.</p>
-      <div class="code"><button class="copy" data-copy="code-dl">Copy</button><pre id="code-dl"><code>pip install huggingface_hub hdf5plugin h5py
+  <div class="start-rows">
+    <div class="start-row">
+      <div class="start-text">
+        <h3>Download the data</h3>
+        <p>Trajectories use Zstandard compression, so import <code>hdf5plugin</code> before <code>h5py</code>. Filter by scenario, geometry family or run with <code>--include</code>.</p>
+      </div>
+      <div class="code">
+        <div class="code-bar"><span>Shell</span><button class="copy" data-copy="code-dl">Copy</button></div>
+        <pre id="code-dl"><code data-lang="sh">pip install huggingface_hub hdf5plugin h5py
 hf download PoreML/PoreML_data --repo-type dataset \
-  --include "drainage/runs/sphere/*" --local-dir data</code></pre></div>
+  --include "drainage/runs/sphere/*" --local-dir data</code></pre>
+      </div>
     </div>
-    <div class="start-item">
-      <h3>Read a trajectory</h3>
-      <p>Each run is one <code>.h5</code> file holding the solid mask and, per stored step, phase <code>phi</code>, pressure <code>p</code> and velocity <code>u</code>. The last axis is the flow direction.</p>
-      <div class="code"><button class="copy" data-copy="code-py">Copy</button><pre id="code-py"><code>import glob, hdf5plugin, h5py
+    <div class="start-row">
+      <div class="start-text">
+        <h3>Read a trajectory</h3>
+        <p>Each run is one <code>.h5</code> file holding the solid mask and, per stored step, phase <code>phi</code>, pressure <code>p</code> and velocity <code>u</code>. The last axis is the flow direction.</p>
+      </div>
+      <div class="code">
+        <div class="code-bar"><span>Python</span><button class="copy" data-copy="code-py">Copy</button></div>
+        <pre id="code-py"><code data-lang="py">import glob, hdf5plugin, h5py
 
 path = glob.glob("data/drainage/runs/sphere/*/*/*.h5")[0]
 with h5py.File(path) as f:
     rock = f["rock"][:]                    # 1 = solid
     steps = sorted(f["steps"], key=int)
-    phi = f["steps"][steps[-1]]["phi"][:]  # NaN inside solids</code></pre></div>
+    phi = f["steps"][steps[-1]]["phi"][:]  # NaN inside solids</code></pre>
+      </div>
     </div>
-    <div class="start-item">
-      <h3>Run the code</h3>
-      <p>The solver generates new simulations; the framework trains and scores models with the protocols used in the paper.</p>
-      <div class="code"><button class="copy" data-copy="code-git">Copy</button><pre id="code-git"><code>git clone https://github.com/PoreML/bob      # LBM solver
-git clone https://github.com/PoreML/poreml   # learning framework</code></pre></div>
+    <div class="start-row">
+      <div class="start-text">
+        <h3>Run the code</h3>
+        <p>The solver generates new simulations; the framework trains and scores models with the protocols used in the paper.</p>
+      </div>
+      <div class="code">
+        <div class="code-bar"><span>Shell</span><button class="copy" data-copy="code-git">Copy</button></div>
+        <pre id="code-git"><code data-lang="sh">git clone https://github.com/PoreML/bob      # LBM solver
+git clone https://github.com/PoreML/poreml   # learning framework</code></pre>
+      </div>
     </div>
   </div>
 </section>
@@ -297,13 +312,25 @@ git clone https://github.com/PoreML/poreml   # learning framework</code></pre></
   <div class="section-head">
     <h2>Cite PoreML</h2>
   </div>
-  <div class="code code-cite"><button class="copy" data-copy="code-bib">Copy BibTeX</button><pre id="code-bib"><code>@article{wang2026poreml,
+  <article class="cite-card">
+    <p class="cite-ref" id="cite-ref">Wang, C., Zhang, M., Zhang, Y., Zhu, L., Ju, X., Boek, E. S., Blunt, M. J., &amp; Wen, G. (2026). PoreML: A data-driven framework for learning multiphase flow in porous media. <i>arXiv preprint</i> <a href="https://arxiv.org/abs/2610.10314">arXiv:2610.10314</a>.</p>
+    <div class="cite-bib">
+      <div class="cite-bar">
+        <span>BibTeX</span>
+        <span class="cite-actions">
+          <button class="copy" data-copy="cite-ref">Copy citation</button>
+          <button class="copy" data-copy="code-bib">Copy BibTeX</button>
+        </span>
+      </div>
+      <pre id="code-bib"><code data-lang="bib">@article{wang2026poreml,
   title   = {PoreML: A Data-Driven Framework for Learning Multiphase Flow in Porous Media},
   author  = {Wang, Chunyang and Zhang, Mingrui and Zhang, Yuyan and Zhu, Linqi and
              Ju, Xin and Boek, Edo Sicco and Blunt, Martin J. and Wen, Gege},
   journal = {arXiv preprint arXiv:2610.10314},
   year    = {2026}
-}</code></pre></div>
+}</code></pre>
+    </div>
+  </article>
 </section>
 
 </main>
@@ -313,6 +340,6 @@ git clone https://github.com/PoreML/poreml   # learning framework</code></pre></
   <p><a href="https://arxiv.org/abs/2610.10314">arXiv</a> <a href="https://github.com/PoreML">GitHub</a> <a href="https://huggingface.co/datasets/PoreML/PoreML_data">Hugging Face</a></p>
 </footer>
 
-<script src="app.js?v=7" type="module"></script>
+<script src="app.js?v=8" type="module"></script>
 </body>
 </html>

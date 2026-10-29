@@ -146,6 +146,33 @@ const s = (tag, attrs = {}, ...kids) => {
 const topbar = $(".topbar");
 addEventListener("scroll", () => topbar.classList.toggle("scrolled", scrollY > 8), { passive: true });
 
+/* ---------------- Code highlighting ---------------- */
+// A few regex rules per language are enough for the short snippets on this page.
+{
+  const RULES = {
+    sh: [["com", /(?<=^|\s)#.*/], ["str", /"[^"\n]*"|'[^'\n]*'/], ["cmd", /^[a-z][\w-]*/], ["flag", /(?<=\s)--?[a-z][\w-]*/]],
+    py: [
+      ["com", /#.*/], ["str", /"[^"\n]*"|'[^'\n]*'/],
+      ["kw", /\b(?:import|from|with|as|for|in|def|return|if|else|None|True|False)\b/],
+      ["fn", /\b[A-Za-z_]\w*(?=\()/], ["num", /\b\d+(?:\.\d+)?\b/],
+    ],
+    bib: [["kw", /@\w+/], ["key", /^\s+\w+(?=\s*=)/]],
+  };
+  const esc = (t) => t.replace(/[&<>]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;" })[c]);
+  for (const el of document.querySelectorAll("code[data-lang]")) {
+    const rules = RULES[el.dataset.lang];
+    const re = new RegExp(rules.map(([, r]) => `(${r.source})`).join("|"), "gm");
+    const src = el.textContent;
+    let out = "", last = 0;
+    for (const m of src.matchAll(re)) {
+      const i = m.slice(1).findIndex((g) => g !== undefined);
+      out += esc(src.slice(last, m.index)) + `<span class="tk-${rules[i][0]}">${esc(m[0])}</span>`;
+      last = m.index + m[0].length;
+    }
+    el.innerHTML = out + esc(src.slice(last));
+  }
+}
+
 /* ---------------- Copy buttons ---------------- */
 document.querySelectorAll(".copy").forEach((btn) => {
   btn.addEventListener("click", async () => {
