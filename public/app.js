@@ -607,7 +607,59 @@ const [media, iou, results] = await Promise.all(
   table();
 }
 
-/* ---------------- Solver validation clips ---------------- */
+/* ---------------- Solver validation ---------------- */
+// What each case checks, condensed from the paper's validation appendix.
+const VAL = {
+  laplace: {
+    title: "Laplace law",
+    checks: "Surface tension gives the right pressure jump across a curved interface.",
+    setup: "A slab-shaped drop relaxes under surface tension alone; drops of several radii equilibrate for σ = 0.01–0.05.",
+    ref: "Young–Laplace: Δp = 2σ/R.",
+    result: "Sphericity 2.504 → 1.000. Δp is linear in 1/R at every σ (R² ≈ 0.999).",
+    fig: "val_laplace", alt: "Slab relaxing to a sphere, and pressure jump against inverse radius for five surface tensions",
+  },
+  wetting: {
+    title: "Contact angle on a flat wall",
+    checks: "The solver realizes the contact angle it is given, the wettability label on every run.",
+    setup: "Sessile drops relax under imposed angles of 30–150°; the angle is measured from a spherical-cap fit.",
+    ref: "The imposed angle.",
+    result: "Within 2.3° of the imposed angle, 3.8° at the 150° extreme.",
+    fig: "val_wetting", alt: "Equilibrated sessile drops for nine imposed angles, and measured against imposed angle",
+  },
+  washburn: {
+    title: "Washburn imbibition",
+    checks: "Moving contact-line dynamics, so the time axis of imbibition runs is physical.",
+    setup: "A wetting fluid rises into a tube of radius 5 under capillary suction alone (ΔP = 0), θ = 20–70°.",
+    ref: "Two-fluid Washburn law.",
+    result: "L² is linear in t (R² = 1.000). Rate coefficients are within 1–6% of analytic.",
+    fig: "val_capillary_rise", alt: "Penetration length over time against the Washburn solution, with snapshots of the rising front",
+  },
+  poiseuille: {
+    title: "Layered Poiseuille flow",
+    checks: "Viscous momentum exchange across the interface, the physics behind the viscosity ratio M.",
+    setup: "A pressure-driven channel with viscous fluid at both walls and a thinner fluid in the middle, M = 5–30.",
+    ref: "Two-fluid analytic velocity profile.",
+    result: "Maximum relative error 0.95–2.58%.",
+    fig: "val_layered3d_profile", alt: "Simulated velocity profiles on analytic curves for five viscosity ratios",
+  },
+  micromodel: {
+    title: "Micromodel drainage vs. experiment",
+    checks: "Which throat a meniscus invades at a pore junction.",
+    setup: "A 3D four-throat junction at 3 µm per voxel, Ca ≈ 10⁻⁴, wetting angle 26°.",
+    ref: "Micromodel experiments of Zacharoudiou et al. (2017).",
+    result: "The invading phase fills the pore body and exits through the widest throat, as in the experiment.",
+    fig: "capillary_micromodel_drainage", alt: "Experimental micromodel images above matching simulation slices",
+  },
+  lenormand: {
+    title: "Displacement regimes",
+    checks: "Changing only Ca and M gives the expected front shapes in a real pore geometry.",
+    setup: "A 256³ sphere pack at (Ca, M) = (10⁻³, 30), (10⁻³, 0.01) and (10⁻⁵, 30).",
+    ref: "Lenormand phase diagram.",
+    result: "Stable front, viscous fingering and capillary fingering, respectively.",
+    fig: "val_lenormand", alt: "Lenormand phase diagram linked to three sphere-pack snapshots", only: true,
+  },
+};
+
 {
   // Load each clip only once it nears the viewport; play while visible.
   const io = new IntersectionObserver((entries) => {
@@ -619,10 +671,35 @@ const [media, iou, results] = await Promise.all(
       } else v.pause();
     }
   }, { rootMargin: "200px 0px", threshold: 0.1 });
-  for (const v of document.querySelectorAll(".val-grid video")) {
-    if (reduceMotion) v.controls = true;
-    io.observe(v);
+  for (const v of document.querySelectorAll(".val-grid video")) io.observe(v);
+
+  const box = $("#val-box");
+  for (const btn of document.querySelectorAll(".val-tile")) {
+    const d = VAL[btn.dataset.val];
+    btn.setAttribute("aria-label", `${d.title}: details`);
+    btn.addEventListener("click", () => {
+      $("#vb-title").textContent = d.title;
+      const fig = h("img", { src: `media/figs/${d.fig}.webp`, alt: d.alt, class: d.only ? "vb-only" : null });
+      if (d.only) $("#vb-media").replaceChildren(fig);
+      else {
+        const v = h("video", { src: `media/val/${btn.dataset.val}.mp4`, loop: "", playsinline: "", controls: "" });
+        v.muted = true; // the property, not the attribute, is what allows autoplay
+        if (!reduceMotion) v.play().catch(() => {});
+        $("#vb-media").replaceChildren(v, fig);
+      }
+      $("#vb-facts").replaceChildren(
+        h("dt", {}, "Checks"), h("dd", {}, d.checks),
+        h("dt", {}, "Setup"), h("dd", {}, d.setup),
+        h("dt", {}, "Reference"), h("dd", {}, d.ref),
+        h("dt", {}, "Result"), h("dd", {}, d.result),
+        h("p", { class: "fine" }, "Details in the paper's validation appendix."),
+      );
+      box.showModal();
+    });
   }
+  // close fires asynchronously, so only pause here; the next open replaces the media anyway.
+  box.addEventListener("close", () => $("#vb-media video")?.pause());
+  box.addEventListener("click", (e) => { if (e.target === box) box.close(); });
 }
 
 function niceStep(raw) {

@@ -16,7 +16,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=STIX+Two+Text:ital,wght@0,400..700;1,400..700&family=Schibsted+Grotesk:wght@400..700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="style.css?v=5">
+<link rel="stylesheet" href="style.css?v=6">
 </head>
 <body>
 
@@ -229,14 +229,24 @@
   </figure>
 
   <h3 class="sub">Solver validation</h3>
+  <p class="sub-note">Select a case to see what it checks.</p>
   <div class="val-grid">
-    <figure><video data-src="media/val/laplace.mp4" poster="media/val/laplace.webp" muted loop playsinline preload="none" aria-label="A box-shaped droplet relaxing into a sphere"></video><figcaption>Droplet relaxation (Laplace law)</figcaption></figure>
-    <figure><video data-src="media/val/wetting.mp4" poster="media/val/wetting.webp" muted loop playsinline preload="none" aria-label="Nine sessile droplets relaxing to imposed contact angles from 30 to 150 degrees"></video><figcaption>Sessile drops, imposed vs. measured contact angle</figcaption></figure>
-    <figure><video data-src="media/val/washburn.mp4" poster="media/val/washburn.webp" muted loop playsinline preload="none" aria-label="Capillary rise in six tubes with contact angles from 20 to 70 degrees"></video><figcaption>Washburn capillary rise, θ = 20–70°</figcaption></figure>
-    <figure><video data-src="media/val/poiseuille.mp4" poster="media/val/poiseuille.webp" muted loop playsinline preload="none" aria-label="Simulated velocity profiles of layered Poiseuille flow against analytic curves"></video><figcaption>Layered Poiseuille flow, M = 5–30, vs. analytic</figcaption></figure>
-    <figure class="val-tall"><video data-src="media/val/micromodel.mp4" poster="media/val/micromodel.webp" muted loop playsinline preload="none" aria-label="Non-wetting fluid invading a micromodel pore junction"></video><figcaption>Drainage through a micromodel junction</figcaption></figure>
-    <figure class="val-wide"><video data-src="media/val/lenormand.mp4" poster="media/val/lenormand.webp" muted loop playsinline preload="none" aria-label="Three displacement runs on a sphere pack: capillary fingering, viscous fingering and a stable front"></video><figcaption><span>Capillary fingering</span><span>Viscous fingering</span><span>Stable front</span></figcaption><p class="fine">Displacement regimes on a 256³ sphere pack, varying only Ca and M.</p></figure>
+    <button class="val-tile" data-val="laplace"><video data-src="media/val/laplace.mp4" poster="media/val/laplace.webp" muted loop playsinline preload="none" aria-hidden="true"></video><span>Droplet relaxation (Laplace law)</span></button>
+    <button class="val-tile" data-val="wetting"><video data-src="media/val/wetting.mp4" poster="media/val/wetting.webp" muted loop playsinline preload="none" aria-hidden="true"></video><span>Sessile drops, imposed vs. measured contact angle</span></button>
+    <button class="val-tile" data-val="washburn"><video data-src="media/val/washburn.mp4" poster="media/val/washburn.webp" muted loop playsinline preload="none" aria-hidden="true"></video><span>Washburn capillary rise, θ = 20–70°</span></button>
+    <button class="val-tile" data-val="poiseuille"><video data-src="media/val/poiseuille.mp4" poster="media/val/poiseuille.webp" muted loop playsinline preload="none" aria-hidden="true"></video><span>Layered Poiseuille flow, M = 5–30</span></button>
+    <button class="val-tile" data-val="micromodel"><video data-src="media/val/micromodel.mp4" poster="media/val/micromodel.webp" muted loop playsinline preload="none" aria-hidden="true"></video><span>Micromodel drainage vs. experiment</span></button>
+    <button class="val-tile" data-val="lenormand"><img src="media/figs/val_lenormand.webp" alt="" loading="lazy"><span>Displacement regimes on a 256³ sphere pack</span></button>
   </div>
+
+  <dialog class="lightbox val-box" id="val-box" aria-labelledby="vb-title">
+    <form method="dialog"><button class="close" aria-label="Close">×</button></form>
+    <h3 id="vb-title"></h3>
+    <div class="vb-body">
+      <div class="vb-media" id="vb-media"></div>
+      <dl class="vb-facts" id="vb-facts"></dl>
+    </div>
+  </dialog>
 </section>
 
 <!-- Film -->
@@ -303,6 +313,6 @@ git clone https://github.com/PoreML/poreml   # learning framework</code></pre></
   <p><a href="https://arxiv.org/abs/2610.10314">arXiv</a> <a href="https://github.com/PoreML">GitHub</a> <a href="https://huggingface.co/datasets/PoreML/PoreML_data">Hugging Face</a></p>
 </footer>
 
-<script src="app.js?v=5" type="module"></script>
+<script src="app.js?v=6" type="module"></script>
 </body>
 </html>
