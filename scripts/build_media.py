@@ -144,8 +144,8 @@ def trim_whitespace(png, pad=12):
 
 
 # Paper plots shown when a solver-validation tile is opened; val_lenormand is also that tile's image.
-VAL_FIGS = ["val_laplace", "val_wetting", "val_capillary_rise", "val_layered3d_profile", "capillary_micromodel_drainage",
-            "val_lenormand"]
+VAL_FIGS = ["val_laplace", "val_wetting", "val_capillary_rise", "val_layered3d_profile", "capillary_micromodel_imbibition",
+            "capillary_micromodel_drainage", "val_lenormand"]
 
 
 def build_figs(paper, names=("main_workflow", "main_ganglion_dynamics", "main_geo", *VAL_FIGS)):
@@ -170,7 +170,9 @@ VAL = [
     ("wetting", "wetting/output/wetting3d.gif", 800, 1, 0),
     ("washburn", "washburn/output/imbibition.gif", 640, 0.5, 0),
     ("poiseuille", "layered_poiseuille/output/layered3d.gif", 720, 0.5, 0),
-    ("micromodel", "capillary_fill/output_fig4/live/capillary_fill.gif", 560, 3, 22),
+    # the two runs the capillary_fill README names as the figure 8 / figure 4 reproductions
+    ("micromodel_imb", "capillary_fill/output_oh006/live/capillary_fill.gif", 560, 1.5, 22),
+    ("micromodel_drain", "capillary_fill/output_fig4_ca1e-4/live/capillary_fill.gif", 560, 2, 22),
 ]
 WHITEN = "colorlevels=rimax=0.96:gimax=0.96:bimax=0.96"  # pull the renders' off-white background to the page's white
 

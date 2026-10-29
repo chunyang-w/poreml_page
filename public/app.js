@@ -643,12 +643,17 @@ const VAL = {
     fig: "val_layered3d_profile", alt: "Simulated velocity profiles on analytic curves for five viscosity ratios",
   },
   micromodel: {
-    title: "Micromodel drainage vs. experiment",
-    checks: "Which throat a meniscus invades at a pore junction.",
-    setup: "A 3D four-throat junction at 3 µm per voxel, Ca ≈ 10⁻⁴, wetting angle 26°.",
+    title: "Micromodel imbibition and drainage vs. experiment",
+    checks: "Which throat fills first at a pore junction, under spontaneous and forced displacement.",
+    setup: "3D four-throat junctions at 3 µm per voxel. Imbibition: wetting angle 16°, equal pressure at all ports. Drainage: Ca ≈ 10⁻⁴, wetting angle 26°.",
     ref: "Micromodel experiments of Zacharoudiou et al. (2017).",
-    result: "The invading phase fills the pore body and exits through the widest throat, as in the experiment.",
-    fig: "capillary_micromodel_drainage", alt: "Experimental micromodel images above matching simulation slices",
+    result: "Imbibition fills the adjacent 47 µm throat before the narrowest 27 µm one; drainage exits through the widest throat. Both match the experiments.",
+    pair: [
+      { label: "Spontaneous imbibition", clip: "micromodel_imb", fig: "capillary_micromodel_imbibition",
+        alt: "Experimental imbibition images above matching simulation slices" },
+      { label: "Dynamic drainage", clip: "micromodel_drain", fig: "capillary_micromodel_drainage",
+        alt: "Experimental drainage images above matching simulation slices" },
+    ],
   },
   lenormand: {
     title: "Displacement regimes",
@@ -679,14 +684,18 @@ const VAL = {
     btn.setAttribute("aria-label", `${d.title}: details`);
     btn.addEventListener("click", () => {
       $("#vb-title").textContent = d.title;
-      const fig = h("img", { src: `media/figs/${d.fig}.webp`, alt: d.alt, class: d.only ? "vb-only" : null });
-      if (d.only) $("#vb-media").replaceChildren(fig);
-      else {
-        const v = h("video", { src: `media/val/${btn.dataset.val}.mp4`, loop: "", playsinline: "", controls: "" });
+      const clip = (key) => {
+        const v = h("video", { src: `media/val/${key}.mp4`, loop: "", playsinline: "", controls: "" });
         v.muted = true; // the property, not the attribute, is what allows autoplay
         if (!reduceMotion) v.play().catch(() => {});
-        $("#vb-media").replaceChildren(v, fig);
-      }
+        return v;
+      };
+      const fig = (name, alt, cls) => h("img", { src: `media/figs/${name}.webp`, alt, class: cls });
+      const media = $("#vb-media");
+      media.classList.toggle("vb-pair", !!d.pair);
+      if (d.pair) media.replaceChildren(...d.pair.map((p) => h("div", {}, h("h4", {}, p.label), clip(p.clip), fig(p.fig, p.alt))));
+      else if (d.only) media.replaceChildren(fig(d.fig, d.alt, "vb-only"));
+      else media.replaceChildren(clip(btn.dataset.val), fig(d.fig, d.alt));
       $("#vb-facts").replaceChildren(
         h("dt", {}, "Checks"), h("dd", {}, d.checks),
         h("dt", {}, "Setup"), h("dd", {}, d.setup),
@@ -698,7 +707,7 @@ const VAL = {
     });
   }
   // close fires asynchronously, so only pause here; the next open replaces the media anyway.
-  box.addEventListener("close", () => $("#vb-media video")?.pause());
+  box.addEventListener("close", () => { for (const v of document.querySelectorAll("#vb-media video")) v.pause(); });
   box.addEventListener("click", (e) => { if (e.target === box) box.close(); });
 }
 
