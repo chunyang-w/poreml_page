@@ -16,7 +16,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=STIX+Two+Text:ital,wght@0,400..700;1,400..700&family=Schibsted+Grotesk:wght@400..700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="style.css?v=4">
+<link rel="stylesheet" href="style.css?v=5">
 </head>
 <body>
 
@@ -178,23 +178,8 @@
 <!-- Results -->
 <section class="section" id="results">
   <div class="section-head">
-    <h2>What the benchmark shows</h2>
-    <p>Five architectures, three on voxel grids and two on point clouds, trained frame to frame and fine-tuned with the pushforward trick.</p>
-  </div>
-
-  <div class="findings">
-    <article>
-      <h3>One step is easy. Sixty-four is not.</h3>
-      <p>Every model reaches a phase error of 0.002–0.012 on a single step. Over a 64-step rollout the ranking reshuffles: AB-UPT has the lowest phase error in all four scenarios, while P3D keeps the best interface geometry in drainage.</p>
-    </article>
-    <article>
-      <h3>Low error does not mean the right shape.</h3>
-      <p>Topology is the hardest thing to get right. The median Euler-characteristic error is 3.6 miscounts per 10<sup>5</sup> voxels, as large as the true value itself, and the most accurate model by field error is also best on topology in only one scenario.</p>
-    </article>
-    <article>
-      <h3>Transfer works, with caveats.</h3>
-      <p>Phase errors stay bounded on micro-CT rock and on domains twice as wide, and AB-UPT leads five of six transfer blocks. Volume and interface-area errors grow faster than field error when the domain is scaled up.</p>
-    </article>
+    <h2>Benchmark</h2>
+    <p>Five models, four scenarios, three tests. Pick a combination to compare.</p>
   </div>
 
   <div class="chart-block">
@@ -243,12 +228,14 @@
     <figcaption><b>Geometry families.</b> Rock-like media (µCT sandstone, sphere packs, Gaussian blobs, polydisperse grains), gas-diffusion layers (µCT carbon paper and generated fibre mats), and flip-chip gaps set by solder-ball diameter, pitch and gap height. Large and small domains share one voxel size, so a larger domain holds more pores rather than finer ones.</figcaption>
   </figure>
 
-  <h3 class="sub">A solver checked against theory and experiment</h3>
+  <h3 class="sub">Solver validation</h3>
   <div class="val-grid">
-    <figure><img src="media/figs/val_laplace.webp" alt="Laplace law validation plot" loading="lazy"><figcaption>Laplace law: droplet pressure jump against interfacial curvature.</figcaption></figure>
-    <figure><img src="media/figs/val_capillary_rise.webp" alt="Washburn imbibition validation plot" loading="lazy"><figcaption>Washburn imbibition: penetration length over time.</figcaption></figure>
-    <figure><img src="media/figs/capillary_micromodel_drainage.webp" alt="Micromodel drainage compared with experiment" loading="lazy"><figcaption>Dynamic drainage in a four-throat micromodel, compared with experiment.</figcaption></figure>
-    <figure><img src="media/figs/val_lenormand.webp" alt="Displacement regime map on a sphere pack" loading="lazy"><figcaption>Displacement regimes on a 256³ sphere pack: capillary fingering, viscous fingering and stable fronts.</figcaption></figure>
+    <figure><video data-src="media/val/laplace.mp4" poster="media/val/laplace.webp" muted loop playsinline preload="none" aria-label="A box-shaped droplet relaxing into a sphere"></video><figcaption>Droplet relaxation (Laplace law)</figcaption></figure>
+    <figure><video data-src="media/val/wetting.mp4" poster="media/val/wetting.webp" muted loop playsinline preload="none" aria-label="Nine sessile droplets relaxing to imposed contact angles from 30 to 150 degrees"></video><figcaption>Sessile drops, imposed vs. measured contact angle</figcaption></figure>
+    <figure><video data-src="media/val/washburn.mp4" poster="media/val/washburn.webp" muted loop playsinline preload="none" aria-label="Capillary rise in six tubes with contact angles from 20 to 70 degrees"></video><figcaption>Washburn capillary rise, θ = 20–70°</figcaption></figure>
+    <figure><video data-src="media/val/poiseuille.mp4" poster="media/val/poiseuille.webp" muted loop playsinline preload="none" aria-label="Simulated velocity profiles of layered Poiseuille flow against analytic curves"></video><figcaption>Layered Poiseuille flow, M = 5–30, vs. analytic</figcaption></figure>
+    <figure class="val-tall"><video data-src="media/val/micromodel.mp4" poster="media/val/micromodel.webp" muted loop playsinline preload="none" aria-label="Non-wetting fluid invading a micromodel pore junction"></video><figcaption>Drainage through a micromodel junction</figcaption></figure>
+    <figure class="val-wide"><video data-src="media/val/lenormand.mp4" poster="media/val/lenormand.webp" muted loop playsinline preload="none" aria-label="Three displacement runs on a sphere pack: capillary fingering, viscous fingering and a stable front"></video><figcaption><span>Capillary fingering</span><span>Viscous fingering</span><span>Stable front</span></figcaption><p class="fine">Displacement regimes on a 256³ sphere pack, varying only Ca and M.</p></figure>
   </div>
 </section>
 
@@ -316,6 +303,6 @@ git clone https://github.com/PoreML/poreml   # learning framework</code></pre></
   <p><a href="https://arxiv.org/abs/2610.10314">arXiv</a> <a href="https://github.com/PoreML">GitHub</a> <a href="https://huggingface.co/datasets/PoreML/PoreML_data">Hugging Face</a></p>
 </footer>
 
-<script src="app.js?v=4" type="module"></script>
+<script src="app.js?v=5" type="module"></script>
 </body>
 </html>

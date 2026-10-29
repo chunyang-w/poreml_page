@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Build web-sized media for the PoreML page from the final_cut assets.
 
-Usage: python3 scripts/build_media.py [--src DIR] [--paper DIR] [--only sim|rollout|film|figs]
+Usage: python3 scripts/build_media.py [--src DIR] [--paper DIR] [--val DIR] [--only sim|rollout|film|figs|val]
 
 Writes into public/media/ and public/data/media.json (the manifest the page reads).
 Needs ffmpeg, cwebp and pdftoppm on PATH.
@@ -146,8 +146,7 @@ def trim_whitespace(png, pad=12):
 def build_figs(paper):
     out = OUT / "figs"
     out.mkdir(parents=True, exist_ok=True)
-    for name in ["main_workflow", "main_run_cases", "main_ganglion_dynamics", "main_geo", "val_lenormand",
-                 "val_laplace", "val_capillary_rise", "capillary_micromodel_drainage"]:
+    for name in ["main_workflow", "main_run_cases", "main_ganglion_dynamics", "main_geo"]:
         pdf = paper / "figs" / f"{name}.pdf"
         if not pdf.exists():
             continue
@@ -159,10 +158,77 @@ def build_figs(paper):
         print("fig", name)
 
 
+# Solver validation GIFs from the bob repo's demo/ folder -> looping web clips.
+# (key, path under demo/, output width, playback speed-up, top rows to crop off a burned-in title)
+VAL = [
+    ("laplace", "laplace/output/rounding.gif", 640, 1, 70),
+    ("wetting", "wetting/output/wetting3d.gif", 800, 1, 0),
+    ("washburn", "washburn/output/imbibition.gif", 640, 0.5, 0),
+    ("poiseuille", "layered_poiseuille/output/layered3d.gif", 720, 0.5, 0),
+    ("micromodel", "capillary_fill/output_fig4/live/capillary_fill.gif", 560, 3, 22),
+]
+# regime -> run folder; the capillary-fingering run is the one used for the paper figure
+LENORMAND = {"capillary": "capillary_s005_nu004", "viscous": "viscous", "stable": "stable"}
+WHITEN = "colorlevels=rimax=0.96:gimax=0.96:bimax=0.96"  # pull the renders' off-white background to the page's white
+
+
+def content_box(gif, top, pad=16):
+    # Union of non-white pixels over every frame, so the crop never clips motion.
+    from PIL import Image, ImageChops, ImageSequence
+
+    im = Image.open(gif)
+    box = None
+    for fr in ImageSequence.Iterator(im):
+        f = fr.convert("RGB").crop((0, top, im.width, im.height))
+        b = ImageChops.difference(f, Image.new("RGB", f.size, (255, 255, 255))).convert("L").point(lambda v: 255 if v > 12 else 0).getbbox()
+        if b:
+            box = b if box is None else (min(box[0], b[0]), min(box[1], b[1]), max(box[2], b[2]), max(box[3], b[3]))
+    l, t, r, b = box
+    l, t = max(0, l - pad), max(0, t - pad) + top
+    r, b = min(im.width, r + pad), min(im.height, b + pad + top)
+    return f"crop={(r - l) // 2 * 2}:{(b - t) // 2 * 2}:{l}:{t}"
+
+
+def encode_loop(src, dst, vf):
+    run(["ffmpeg", "-y", "-i", str(src), "-vf", vf + ",format=yuv420p", "-c:v", "libx264", "-preset", "slow", "-crf", "26",
+         "-movflags", "+faststart", "-an", str(dst)])
+    run(["ffmpeg", "-y", "-sseof", "-0.1", "-i", str(dst), "-frames:v", "1", "-update", "1", str(dst.with_suffix(".png"))])
+    run(["cwebp", "-q", "80", str(dst.with_suffix(".png")), "-o", str(dst.with_suffix(".webp"))])
+    dst.with_suffix(".png").unlink()
+
+
+def build_val(demo):
+    out = OUT / "val"
+    out.mkdir(parents=True, exist_ok=True)
+    for key, rel, width, speed, top in VAL:
+        gif = demo / rel
+        vf = f"{content_box(gif, top)},setpts=PTS/{speed},fps=25,scale={width}:-2:flags=lanczos,{WHITEN}"
+        encode_loop(gif, out / f"{key}.mp4", vf)
+        print("val", key)
+    # The three Lenormand regimes side by side, each retimed to the same 8 s.
+    gifs = [demo / "lenormand" / "output" / run_dir / f"lenormand_{r}.gif" for r, run_dir in LENORMAND.items()]
+    durs = [float(subprocess.check_output(["ffprobe", "-v", "error", "-show_entries", "format=duration", "-of", "csv=p=0",
+                                           str(g)]).decode()) for g in gifs]
+    crop = content_box(gifs[0], 0)
+    parts = [f"[{i}:v]{crop},setpts=PTS*{8 / d:.4f},fps=25,scale=480:-2:flags=lanczos,trim=duration=8[v{i}]" for i, d in enumerate(durs)]
+    cmd = ["ffmpeg", "-y"]
+    for g in gifs:
+        cmd += ["-i", str(g)]
+    dst = out / "lenormand.mp4"
+    cmd += ["-filter_complex", ";".join(parts) + f";[v0][v1][v2]hstack=3,{WHITEN},format=yuv420p", "-c:v", "libx264", "-preset", "slow",
+            "-crf", "26", "-movflags", "+faststart", "-an", str(dst)]
+    run(cmd)
+    run(["ffmpeg", "-y", "-sseof", "-0.1", "-i", str(dst), "-frames:v", "1", "-update", "1", str(dst.with_suffix(".png"))])
+    run(["cwebp", "-q", "80", str(dst.with_suffix(".png")), "-o", str(dst.with_suffix(".webp"))])
+    dst.with_suffix(".png").unlink()
+    print("val lenormand")
+
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--src", type=Path, default=DEFAULT_SRC)
     ap.add_argument("--paper", type=Path)
+    ap.add_argument("--val", type=Path, help="bob demo/ folder holding the validation GIFs")
     ap.add_argument("--only")
     a = ap.parse_args()
     DATA.mkdir(parents=True, exist_ok=True)
@@ -176,6 +242,8 @@ def main():
         build_film(a.src)
     if a.only in (None, "figs") and a.paper:
         build_figs(a.paper)
+    if a.only in (None, "val") and a.val:
+        build_val(a.val)
     manifest_path.write_text(json.dumps(manifest, indent=1))
 
 

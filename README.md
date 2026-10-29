@@ -27,6 +27,10 @@ The page's media and JSON are generated from the supplementary-video assets and 
 # simulation clips, rollout frames, film, paper figures -> public/media, public/data/media.json
 python3 scripts/build_media.py --src "/path/to/final_cut" --paper /path/to/arxiv_src
 
+# solver validation clips from the bob repo -> public/media/val
+# (pull demo/ GIFs from the cluster first, e.g. ssh workspace 'cd ~/sponge/bob/demo && tar cf - <gifs>' | tar xf -)
+python3 scripts/build_media.py --only val --val /path/to/bob/demo
+
 # per-step IoU printed on each rollout panel -> public/data/iou.json  (needs tesseract)
 python3 scripts/ocr_iou.py --src "/path/to/final_cut"
 

@@ -568,7 +568,7 @@ const [media, iou, results] = await Promise.all(
       seg([["phi", "Phase MAE"], ["iou", "IoU"]], metric, (k) => { st.lineMetric = k; lineChart(); }),
     );
     $("#line-chart").replaceChildren(controls, svg);
-    $("#line-title").innerHTML = `How error grows over the rollout<span>${CAMPAIGNS[camp].name}, ${TESTS[study].name.toLowerCase()} test. ${isIou ? "Higher" : "Lower"} is better.</span>`;
+    $("#line-title").innerHTML = `Over the rollout<span>${CAMPAIGNS[camp].name}, ${TESTS[study].name.toLowerCase()} test. ${isIou ? "Higher" : "Lower"} is better.</span>`;
     $("#line-note").textContent = camp !== st.camp ? "Transfer tests cover drainage, trapping and GDL; showing drainage." : "";
   }
 
@@ -605,6 +605,24 @@ const [media, iou, results] = await Promise.all(
   }
   render();
   table();
+}
+
+/* ---------------- Solver validation clips ---------------- */
+{
+  // Load each clip only once it nears the viewport; play while visible.
+  const io = new IntersectionObserver((entries) => {
+    for (const e of entries) {
+      const v = e.target;
+      if (e.isIntersecting) {
+        if (!v.src) v.src = v.dataset.src;
+        if (!reduceMotion) v.play().catch(() => {});
+      } else v.pause();
+    }
+  }, { rootMargin: "200px 0px", threshold: 0.1 });
+  for (const v of document.querySelectorAll(".val-grid video")) {
+    if (reduceMotion) v.controls = true;
+    io.observe(v);
+  }
 }
 
 function niceStep(raw) {
